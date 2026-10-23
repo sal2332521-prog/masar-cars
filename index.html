@@ -3,267 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مسار السيارات - النسخة المتقدمة</title>
+    <title>مسار السيارات - إدارة الساحة وحركة المركبات</title>
+    <!-- تضمين مكتبة أيقونات ومكتبة CSV لتسهيل التصدير -->
+    <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         :root {
-            --primary: #1e3a8a;
-            --primary-hover: #1e40af;
-            --bg: #f8fafc;
+            --primary-color: #1a365d;
+            --secondary-color: #2b6cb0;
+            --success-color: #2f855a;
+            --danger-color: #c53030;
+            --bg-color: #f7fafc;
             --card-bg: #ffffff;
-            --text: #0f172a;
-            --border: #e2e8f0;
-            --success: #16a34a;
-            --warning: #ea580c;
+            --text-color: #2d3748;
+            --border-color: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             padding-bottom: 70px;
         }
 
+        /* الهيدر العلوي */
         header {
-            background-color: var(--primary);
+            background-color: var(--primary-color);
             color: white;
-            padding: 15px;
+            padding: 20px;
             text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.8;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 20px auto;
             padding: 0 15px;
         }
 
-        /* العدادات الحية */
-        .stats-grid {
+        /* لوحة العدادات الحية */
+        .dashboard-stats {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
-        @media(min-width: 600px) {
-            .stats-grid { grid-template-columns: repeat(4, 1fr); }
-        }
+
         .stat-card {
             background: var(--card-bg);
-            padding: 15px;
+            padding: 20px;
             border-radius: 8px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-top: 4px solid var(--secondary-color);
         }
-        .stat-card h3 { margin: 0 0 5px 0; font-size: 14px; color: #64748b; }
-        .stat-card p { margin: 0; font-size: 24px; font-weight: bold; color: var(--primary); }
 
-        /* الأقسام */
-        .section {
+        .stat-card.out { border-top-color: var(--danger-color); }
+        .stat-card.total { border-top-color: var(--primary-color); }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        /* تبويبات الأقسام */
+        .main-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            border: 1px solid var(--border);
-            display: none;
         }
-        .section.active { display: block; }
-        .section-title { margin-top: 0; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
 
-        /* النماذج */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr;
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
             gap: 15px;
-        }
-        @media(min-width: 600px) {
-            .form-row { grid-template-columns: 1fr 1fr; }
-        }
-        label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
         }
 
         .btn {
-            background-color: var(--primary);
+            background-color: var(--secondary-color);
             color: white;
+            padding: 10px 20px;
             border: none;
-            padding: 12px 20px;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: bold;
-            width: 100%;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             transition: background 0.2s;
         }
-        .btn:hover { background-color: var(--primary-hover); }
-        .btn-sec { background-color: #64748b; margin-top: 10px;}
-        .btn-sec:hover { background-color: #475569; }
 
-        /* البحث والفلاتر */
+        .btn:hover { background-color: #2c5282; }
+        .btn-success { background-color: var(--success-color); }
+        .btn-success:hover { background-color: #22543d; }
+        .btn-danger { background-color: var(--danger-color); }
+
+        /* محرك البحث المتقدم والفلترة المضافة */
         .search-box {
-            background: var(--card-bg);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+            background: #edf2f7;
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 1px solid var(--border);
+            border-radius: 6px;
         }
 
-        /* قائمة السيارات */
-        .car-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            position: relative;
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background-color: white;
         }
-        .car-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .plate-number { font-size: 18px; font-weight: bold; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; }
-        .status-badge { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .status-in { background: #dcfce7; color: #15803d; }
-        .status-out { background: #fee2e2; color: #b91c1c; }
-        .car-details { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #475569; }
-        
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+        }
+
+        /* الـ Form الخاص بالاستلام والتسليم المطور */
+        .car-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* قائمة عرض السيارات (الجدول المحدث) */
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #edf2f7;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        tr:hover { background-color: #f7fafc; }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge-in { background-color: #c6f6d5; color: #22543d; }
+        .badge-out { background-color: #fed7d7; color: #742a2a; }
+
+        /* الشاشات التفاعلية (Tabs) */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
         /* شريط التنقل السفلي */
-        .nav-bar {
+        .nav-bottom {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
-            background: var(--card-bg);
+            background: white;
             display: flex;
             justify-content: space-around;
-            border-top: 1px solid var(--border);
+            padding: 10px 0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
+            z-index: 1000;
         }
+
         .nav-item {
-            flex: 1;
-            text-align: center;
-            padding: 12px 5px;
-            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #718096;
+            text-decoration: none;
             font-size: 12px;
-            color: #64748b;
-            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 25%;
         }
-        .nav-item.active {
-            color: var(--primary);
-            font-weight: bold;
-            background-color: #f1f5f9;
+
+        .nav-item i { font-size: 20px; margin-bottom: 3px; }
+        .nav-item.active { color: var(--secondary-color); font-weight: bold; }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
         }
-        .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
     </style>
 </head>
 <body>
 
-    <header>مسار السيارات 🚘</header>
+    <header>
+        <h1><i class="fas fa-car-side"></i> مسار السيارات</h1>
+        <p>إدارة حركة المركبات، الاستلام والتسليم، والعمليات اللوجستية — يعمل بدون إنترنت</p>
+    </header>
 
     <div class="container">
-        <!-- عدادات الحصر والتحكم الحية -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>إجمالي العمليات</h3>
-                <p id="stat-total">0</p>
+        
+        <!-- لوحة العدادات الحية (حصر شامل فوري) -->
+        <div class="dashboard-stats">
+            <div class="stat-card total">
+                <h3>إجمالي السيارات المسجلة</h3>
+                <div class="value" id="stat-total">0</div>
             </div>
             <div class="stat-card">
-                <h3>في الساحة (استلام)</h3>
-                <p id="stat-in">0</p>
+                <h3>في الساحة حالياً (موجودة)</h3>
+                <div class="value" id="stat-yard">0</div>
             </div>
             <div class="stat-card">
-                <h3>الخارجة (تسليم)</h3>
-                <p id="stat-out">0</p>
+                <h3>في الصيانة</h3>
+                <div class="value" id="stat-maintenance">0</div>
             </div>
-            <div class="stat-card">
-                <h3>تحت الصيانة</h3>
-                <p id="stat-maintenance">0</p>
+            <div class="stat-card out">
+                <h3>في الطريق (خارجة / تم تسليمها)</h3>
+                <div class="value" id="stat-road">0</div>
             </div>
         </div>
 
-        <!-- قسم 1: الحصر والبحث -->
-        <div id="sec-list" class="section active">
-            <h2 class="section-title">حصر وبحث المركبات</h2>
-            <div class="search-box">
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <input type="text" id="search-general" placeholder="🔍 ابحث برقم اللوحة، اسم السائق، الناقل، أو الوجهة..." oninput="filterCars()">
+        <!-- ================= قسم الرئيسية والعرض ================= -->
+        <div id="section-home" class="page-section active">
+            <div class="main-card">
+                <div class="card-header">
+                    <h2>قائمة السيارات والعمليات الحالية</h2>
+                    <button class="btn" onclick="switchTab('add')"><i class="fas fa-plus"></i> حركة جديدة</button>
                 </div>
-                <div class="form-row">
-                    <select id="filter-type" onchange="filterCars()">
-                        <option value="">كل العمليات (استلام/تسليم)</option>
-                        <option value="استلام">السيارات المستلمة</option>
-                        <option value="تسليم">السيارات المسلمة (الخارجة)</option>
-                    </select>
-                    <select id="filter-location" onchange="filterCars()">
+
+                <!-- محرك الفلترة والبحث المتقدم الذكي -->
+                <div class="search-box">
+                    <input type="text" id="search-general" class="form-control" placeholder="ابحث برقم اللوحة، الهيكل، أو المالك..." oninput="filterCars()">
+                    <input type="text" id="search-carrier" class="form-control" placeholder="اسم الناقل..." oninput="filterCars()">
+                    <input type="text" id="search-driver" class="form-control" placeholder="اسم السائق..." oninput="filterCars()">
+                    <input type="text" id="search-destination" class="form-control" placeholder="الوجهة / جهة الوصول..." oninput="filterCars()">
+                    <select id="filter-location" class="form-control" onchange="filterCars()">
                         <option value="">كل المواقع</option>
                         <option value="الساحة">الساحة</option>
                         <option value="الصيانة">الصيانة</option>
                         <option value="في الطريق">في الطريق</option>
                     </select>
                 </div>
-            </div>
-            <div id="cars-container">
-                <!-- قائمة السيارات تظهر هنا ديناميكياً -->
-            </div>
-        </div>
 
-        <!-- قسم 2: تسجيل حركة جديدة -->
-        <div id="sec-add" class="section">
-            <h2 class="section-title">تسجيل حركة مركبة (استلام / تسليم)</h2>
-            <form id="car-form" onsubmit="saveCar(event)">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>نوع العملية *</label>
-                        <select id="form-type" required>
-                            <option value="استلام">استلام (دخول إلى الموقع)</option>
-                            <option value="تسليم">تسليم (خروج من الموقع)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>رقم لوحة السيارة المنقولة *</label>
-                        <input type="text" id="form-plate" placeholder="أ ص ب 1 2 3 4" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>اسم شركة النقل (الناقل) *</label>
-                        <input type="text" id="form-carrier" placeholder="مثال: الفهد للنقل" required>
-                    </div>
-                    <div class="form-group">
-                        <label>رقم لوحة مركبة النقل (الشاحنة/السطحة) *</label>
-                        <input type="text" id="form-carrier-plate" placeholder="رقم لوحة الشاحنة" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>اسم السائق *</label>
-                        <input type="text" id="form-driver" placeholder="اسم سائق الشاحنة الثنائي أو الثلاثي" required>
-                    </div>
-                    <div class="form-group">
-                        <label>الوجهة / مكان الحفظ *</label>
-                        <input type="text" id="form-destination" placeholder="المدينة، الفرع، أو ساحة الارتداد" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>الموقع الحالي داخل المنشأة</label>
-                        <select id="form-location">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>نوع العملية</th>
+                                <th>رقم اللوحة</th>
+                                <th>المالك / الشركة</th>
+                                <th>الموقع الحالي</th>
+                                <th>اسم الناقل</th>
+                                <th>لوحة مركبة النقل</th>
+                                <th>اسم السائق</th>
