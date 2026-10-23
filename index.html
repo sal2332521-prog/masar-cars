@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12304a">
+<meta name="description" content="مسار السيارات - متابعة سيارات الساحة وحركاتها وصورها دون إنترنت">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>مسار السيارات</title>
+<style>
+:root{--navy:#12304a;--blue:#23577c;--bg:#f3f6f9;--card:#fff;--text:#182b3a;--muted:#637587;--line:#dce4eb;--green:#177245;--amber:#966000;--red:#a72d2d}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);padding-bottom:84px}
+header{background:var(--navy);color:#fff;padding:20px 16px 18px;position:sticky;top:0;z-index:5;box-shadow:0 3px 12px #0d25371c}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:14px;background:#ffffff1c;display:grid;place-items:center;font-size:25px}.brand h1{font-size:22px;margin:0}.brand p{font-size:12px;color:#d2e1ed;margin:4px 0 0}
+main{max-width:760px;margin:0 auto;padding:14px}.screen{display:none}.screen.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:14px}.stat{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:14px}.stat span{display:block;color:var(--muted);font-size:13px}.stat strong{display:block;font-size:26px;margin-top:6px;color:var(--navy)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px}.row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}.grow{flex:1;min-width:0}
+h2{font-size:19px;margin:0 0 13px}h3{font-size:16px;margin:0 0 9px}.muted{color:var(--muted);font-size:13px}.field{margin:12px 0}.field label{display:block;font-size:13px;font-weight:650;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #cbd7e1;background:#fff;border-radius:10px;padding:12px;font:inherit;font-size:15px;color:var(--text)}textarea{min-height:82px;resize:vertical}input[type=file]{padding:8px;font-size:13px}input[type=checkbox]{width:auto}
+button{font:inherit;cursor:pointer;border:0;border-radius:11px;padding:11px 14px;font-weight:650;background:var(--navy);color:#fff}button.secondary{background:#e8eef3;color:var(--navy)}button.outline{background:#fff;color:var(--navy);border:1px solid #b9c9d6}button.danger{background:#a72d2d}button.small{padding:8px 10px;font-size:13px}.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{flex:1}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:8;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:7px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+nav button{background:transparent;color:var(--muted);border-radius:10px;padding:8px 3px;font-size:12px;font-weight:600}nav button.active{background:#e8f0f6;color:var(--navy)}
+.vehicle{display:flex;gap:12px;align-items:center}.thumb{width:74px;height:68px;border-radius:12px;background:#e9eff4;display:grid;place-items:center;overflow:hidden;flex-shrink:0}.thumb img{width:100%;height:100%;object-fit:cover}.caricon{font-size:30px}
+.vehicle h3{margin:0 0 5px}.plate{font-weight:750;font-size:16px}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:#e8eef3;color:var(--navy);font-size:11px;white-space:nowrap}.pill.green{background:#e0f3e8;color:var(--green)}.pill.amber{background:#fff0d3;color:var(--amber)}.pill.red{background:#fde6e6;color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}.hidden{display:none!important}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.gallery img{width:100%;height:100px;object-fit:cover;border-radius:9px;background:#e7edf2}
+.history{border-right:2px solid #c7d5e0;padding-right:14px;margin-right:5px}.event{position:relative;margin:0 0 16px}.event:before{content:"";position:absolute;right:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:#23577c;border:2px solid white}
+.note{background:#eef5fa;border-radius:12px;padding:12px;font-size:13px;line-height:1.7}.danger-note{background:#fff3df;color:#755000;border-radius:12px;padding:12px;font-size:13px;line-height:1.7}
+@media(min-width:600px){.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.stat strong{font-size:30px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">🚘</div><div><h1>مسار السيارات</h1><p>إدارة الساحة وحركة المركبات — يعمل دون إنترنت</p></div></div></header>
+<main>
+<section id="home" class="screen active">
+<div class="stats">
+<div class="stat"><span>إجمالي السيارات</span><strong id="totalCount">0</strong></div>
+<div class="stat"><span>في الساحة</span><strong id="yardCount">0</strong></div>
+<div class="stat"><span>في الصيانة</span><strong id="maintenanceCount">0</strong></div>
+<div class="stat"><span>في الطريق</span><strong id="movingCount">0</strong></div>
+</div>
+<div class="card"><div class="row between"><h2 style="margin:0">السيارات</h2><button onclick="showScreen('add')">＋ استلام سيارة</button></div>
+<div class="field"><input id="search" placeholder="ابحث باللوحة أو الهيكل أو الشركة..." oninput="renderCars()"></div>
+<div class="field"><select id="filterLocation" onchange="renderCars()"><option value="">كل المواقع</option><option>الساحة</option><option>الصيانة</option><option>في الطريق</option><option>فرع آخر</option><option>مكتب التأجير</option></select></div>
+<div id="carList"></div></div>
+</section>
+<section id="add" class="screen">
+<div class="card"><h2>استلام / تسجيل سيارة</h2>
+<form id="carForm">
+<div class="field"><label>رقم اللوحة *</label><input id="plate" required placeholder="مثال: أ ب ج 1234"></div>
+<div class="field"><label>رقم الهيكل (VIN)</label><input id="vin" placeholder="رقم الهيكل"></div>
+<div class="field"><label>مكتب التأجير أو الشركة المالكة *</label><input id="company" required placeholder="اسم المكتب أو الشركة"></div>
+<div class="field"><label>مكان الاستلام</label><input id="source" placeholder="مثال: فرع الشركة / موقع العميل"></div>
+<div class="field"><label>الموقع الحالي</label><select id="location"><option>الساحة</option><option>الصيانة</option><option>في الطريق</option><option>فرع آخر</option><option>مكتب التأجير</option></select></div>
+<div class="field"><label>حالة السيارة</label><select id="condition"><option>سليمة حسب المعاينة</option><option>تحتاج صيانة</option><option>أضرار موجودة</option><option>غير مفحوصة</option></select></div>
+<div class="field"><label>صور السيارة عند الاستلام</label><input id="arrivalPhotos" type="file" accept="image/*" capture="environment" multiple><div class="muted">يمكن اختيار أكثر من صورة. تُحفظ الصور داخل هذا الجهاز.</div></div>
+<div class="field"><label>الأضرار والملاحظات</label><textarea id="notes" placeholder="وصف الأضرار أو أي ملاحظات"></textarea></div>
+<div class="actions"><button type="submit">حفظ السيارة</button><button type="button" class="secondary" onclick="showScreen('home')">إلغاء</button></div>
+</form></div>
+</section>
+<section id="detail" class="screen"><div id="detailContent"></div></section>
+<section id="backup" class="screen">
+<div class="card"><h2>النسخ الاحتياطي والاستعادة</h2>
+<div class="note">البيانات والصور تُحفظ على هذا الجهاز فقط. أنشئ نسخة احتياطية بشكل دوري واحفظها في مجلد آمن أو فلاش USB. النسخة تشمل السيارات وسجل الحركات والصور.</div>
+<div class="field"><button style="width:100%" onclick="exportBackup()">⬇ إنشاء نسخة احتياطية كاملة</button></div>
+<div class="field"><label>استعادة نسخة سابقة (JSON)</label><input id="backupFile" type="file" accept=".json,application/json"></div>
+<div class="field"><button class="outline" style="width:100%" onclick="importBackup()">استعادة النسخة المحددة</button></div>
+<div class="danger-note">تنبيه: الاستعادة تستبدل البيانات الحالية في التطبيق. صدّر نسخة احتياطية من بياناتك الحالية أولًا.</div>
+<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+<h3>تصدير قائمة السيارات إلى Excel</h3>
+<p class="muted">ينشئ ملف CSV يمكن فتحه باستخدام Excel. يتضمن بيانات السيارات ومواقعها وعدد الحركات، ولا يضم الصور.</p>
+<button class="outline" style="width:100%" onclick="exportCSV()">تصدير تقرير السيارات CSV</button>
+</div>
+<div class="card"><h3>معلومات التخزين</h3><p id="storageInfo" class="muted">يتم فحص مساحة التخزين...</p><button class="outline" onclick="refreshStorage()">تحديث معلومات التخزين</button></div>
+</section>
+</main>
+<nav>
+<button id="nav-home" class="active" onclick="showScreen('home')">⌂<br>الرئيسية</button>
+<button id="nav-add" onclick="showScreen('add')">＋<br>استلام سيارة</button>
+<button id="nav-backup" onclick="showScreen('backup')">▣<br>نسخ وتقارير</button>
+<button onclick="installApp()">⇩<br>تثبيت التطبيق</button>
+</nav>
+<div id="toast" style="position:fixed;bottom:90px;left:16px;right:16px;max-width:500px;margin:auto;background:#12304a;color:white;padding:12px 15px;border-radius:12px;display:none;z-index:20;text-align:center"></div>
+<script>
+const DB_NAME='masar-cars-db', DB_VERSION=1, STORE='vehicles';
+let db, deferredInstallPrompt=null, selectedVehicleId=null;
+const $=id=>document.getElementById(id);
+function openDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE)){const s=d.createObjectStore(STORE,{keyPath:'id',autoIncrement:true});s.createIndex('plate','plate',{unique:false});}};req.onsuccess=()=>{db=req.result;resolve(db)};req.onerror=()=>reject(req.error)})}
+function allVehicles(){return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>reject(r.error)})}
+function saveVehicle(v){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite'),s=tx.objectStore(STORE);const r=v.id?s.put(v):s.add(v);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function deleteVehicle(id){return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error)})}
+function readFiles(files){return Promise.all([...files].map(f=>new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve({name:f.name,type:f.type,data:r.result});r.onerror=reject;r.readAsDataURL(f)})))}
+function toast(msg){const t=$('toast');t.textContent=msg;t.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.display='none',3200)}
+function showScreen(name){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===name));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));const n=$('nav-'+name);if(n)n.classList.add('active');if(name==='home')renderCars();if(name==='backup')refreshStorage();window.scrollTo(0,0)}
+function locStatus(loc){return loc==='الصيانة'?'في الصيانة':loc==='في الطريق'?'جاري النقل':loc==='مكتب التأجير'?'تم التسليم':loc==='فرع آخر'?'في فرع آخر':'في الساحة'}
+function pillClass(loc){return loc==='الصيانة'?'amber':loc==='في الطريق'?'red':loc==='مكتب التأجير'?'green':''}
+async function renderCars(){const cars=await allVehicles(),q=($('search')?.value||'').trim().toLowerCase(),f=$('filterLocation')?.value||'';const filtered=cars.filter(c=>(!f||c.location===f)&&[c.plate,c.vin,c.company,c.location].join(' ').toLowerCase().includes(q));$('totalCount').textContent=cars.length;$('yardCount').textContent=cars.filter(c=>c.location==='الساحة').length;$('maintenanceCount').textContent=cars.filter(c=>c.location==='الصيانة').length;$('movingCount').textContent=cars.filter(c=>c.location==='في الطريق').length;
+$('carList').innerHTML=filtered.length?filtered.sort((a,b)=>b.id-a.id).map(c=>`<div class="card"><div class="vehicle"><div class="thumb">${c.photos?.[0]?`<img src="${c.photos[0].data}" alt="صورة السيارة">`:'<span class="caricon">🚘</span>'}</div><div class="grow"><h3>${esc(c.plate)}</h3><div class="muted">${esc(c.company)}</div><div class="muted">${esc(c.location)} · ${c.history?.length||0} حركة</div><span class="pill ${pillClass(c.location)}">${locStatus(c.location)}</span></div><button class="small" onclick="openDetail(${c.id})">التفاصيل</button></div></div>`).join(''):'<div class="empty">لا توجد سيارات مطابقة. اضغط «استلام سيارة» لإضافة سيارة.</div>'}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+$('carForm').addEventListener('submit',async e=>{e.preventDefault();const photos=await readFiles($('arrivalPhotos').files);const now=new Date().toISOString();const v={plate:$('plate').value.trim(),vin:$('vin').value.trim(),company:$('company').value.trim(),source:$('source').value.trim(),location:$('location').value,condition:$('condition').value,notes:$('notes').value.trim(),photos,createdAt:now,updatedAt:now,history:[{type:'استلام',from:$('source').value.trim()||'جهة غير محددة',to:$('location').value,carrier:'',notes:$('notes').value.trim(),date:now,photos}]};await saveVehicle(v);e.target.reset();toast('تم حفظ السيارة وصورها على هذا الجهاز');showScreen('home')});
+async function openDetail(id){selectedVehicleId=id;const c=(await allVehicles()).find(v=>v.id===id);if(!c)return;const history=(c.history||[]).slice().reverse();$('detailContent').innerHTML=`<div class="card"><div class="row between"><h2 style="margin:0">${esc(c.plate)}</h2><span class="pill ${pillClass(c.location)}">${locStatus(c.location)}</span></div><p class="muted">${esc(c.company)}</p><div class="field"><b>رقم الهيكل:</b> ${esc(c.vin||'غير مسجل')}</div><div class="field"><b>الموقع الحالي:</b> ${esc(c.location)}</div><div class="field"><b>الحالة:</b> ${esc(c.condition||'غير محددة')}</div><div class="field"><b>ملاحظات:</b> ${esc(c.notes||'لا توجد')}</div><div class="field"><h3>صور السيارة</h3>${c.photos?.length?`<div class="gallery">${c.photos.map(p=>`<img src="${p.data}" alt="صورة السيارة">`).join('')}</div>`:'<p class="muted">لا توجد صور محفوظة.</p>'}</div><div class="actions"><button onclick="showMoveForm()">＋ تسجيل حركة</button><button class="secondary" onclick="showAddPhotos()">📷 إضافة صور</button></div><div id="moveForm" class="hidden"><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>تسجيل حركة جديدة</h3><div class="field"><label>نوع الحركة</label><select id="moveType"><option>نقل إلى الصيانة</option><option>نقل إلى الساحة</option><option>نقل إلى فرع آخر</option><option>تسليم إلى مكتب التأجير</option><option>نقل إلى جهة أخرى</option></select></div><div class="field"><label>من</label><input id="moveFrom" value="${esc(c.location)}"></div><div class="field"><label>إلى</label><input id="moveTo" placeholder="اسم الورشة أو الفرع أو المكتب"></div><div class="field"><label>طريقة النقل</label><select id="moveTransport"><option>داخلي</option><option>خارجي - سطحة</option><option>خارجي - ناقل آخر</option></select></div><div class="field"><label>اسم السائق أو الناقل</label><input id="moveCarrier" placeholder="اسم السائق أو الشركة"></div><div class="field"><label>رقم السطحة أو سيارة النقل</label><input id="moveTruck" placeholder="اختياري"></div><div class="field"><label>صور الحركة / التسليم</label><input id="movePhotos" type="file" accept="image/*" capture="environment" multiple></div><div class="field"><label>ملاحظات الحركة</label><textarea id="moveNotes" placeholder="حالة السيارة عند التسليم أو الأضرار"></textarea></div><div class="actions"><button onclick="saveMove()">حفظ الحركة</button><button class="secondary" onclick="$('moveForm').classList.add('hidden')">إلغاء</button></div></div><div id="photosForm" class="hidden"><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><h3>إضافة صور جديدة</h3><div class="field"><input id="extraPhotos" type="file" accept="image/*" capture="environment" multiple></div><div class="field"><label>وصف الصور</label><input id="extraCaption" placeholder="مثال: خدش في الصدام"></div><button onclick="saveExtraPhotos()">حفظ الصور</button></div></div><div class="card"><h3>سجل الحركة الكامل</h3><div class="history">${history.length?history.map(h=>`<div class="event"><b>${esc(h.type||'حركة')}</b><div>${esc(h.from||'')} ← ${esc(h.to||'')}</div><div class="muted">${new Date(h.date).toLocaleString('ar-SA')} ${h.transport?'· '+esc(h.transport):''}</div>${h.carrier?`<div class="muted">الناقل: ${esc(h.carrier)} ${h.truck?'· '+esc(h.truck):''}</div>`:''}${h.notes?`<p class="muted">${esc(h.notes)}</p>`:''}${h.photos?.length?`<div class="gallery">${h.photos.map(p=>`<img src="${p.data}" alt="صورة حركة">`).join('')}</div>`:''}</div>`).join(''):'<p class="muted">لا يوجد سجل سابق.</p>'}</div></div><div class="card"><button class="outline" style="width:100%" onclick="exportOneCSV(${c.id})">تصدير بيانات هذه السيارة</button><button class="danger" style="width:100%;margin-top:9px" onclick="removeVehicle(${c.id})">حذف السيارة</button></div>`;
+showScreen('detail')}
+function showMoveForm(){$('moveForm').classList.remove('hidden');$('photosForm').classList.add('hidden')}
+function showAddPhotos(){$('photosForm').classList.remove('hidden');$('moveForm').classList.add('hidden')}
+async function saveMove(){const cars=await allVehicles(),c=cars.find(v=>v.id===selectedVehicleId);if(!c)return;const type=$('moveType').value,from=$('moveFrom').value.trim(),to=$('moveTo').value.trim();if(!to){toast('اكتب الوجهة أولًا');return}const photos=await readFiles($('movePhotos').files),transport=$('moveTransport').value,carrier=$('moveCarrier').value.trim(),truck=$('moveTruck').value.trim(),notes=$('moveNotes').value.trim(),now=new Date().toISOString();let loc='فرع آخر';if(/صيانة/.test(type)||/صيانة/.test(to))loc='الصيانة';else if(/الساحة/.test(type)||/الساحة/.test(to))loc='الساحة';else if(/مكتب التأجير|تسليم/.test(type)||/مكتب التأجير/.test(to))loc='مكتب التأجير';else if(/في الطريق/.test(type))loc='في الطريق';c.location=loc;c.updatedAt=now;c.history=c.history||[];c.history.push({type,from,to,transport,carrier,truck,notes,date:now,photos});await saveVehicle(c);toast('تم حفظ الحركة والصور');openDetail(c.id)}
+async function saveExtraPhotos(){const cars=await allVehicles(),c=cars.find(v=>v.id===selectedVehicleId);if(!c)return;const photos=await readFiles($('extraPhotos').files),caption=$('extraCaption').value.trim(),now=new Date().toISOString();if(!photos.length){toast('اختر صورة واحدة على الأقل');return}c.photos=c.photos||[];c.photos.push(...photos);c.history.push({type:'إضافة صور',from:c.location,to:c.location,notes:caption,date:now,photos});await saveVehicle(c);toast('تم حفظ الصور');openDetail(c.id)}
+async function removeVehicle(id){if(!confirm('هل تريد حذف السيارة وسجلها وصورها من هذا الجهاز؟'))return;await deleteVehicle(id);toast('تم حذف السيارة');showScreen('home')}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000)}
+async function exportBackup(){const cars=await allVehicles(),payload={app:'مسار السيارات',formatVersion:1,exportedAt:new Date().toISOString(),vehicles:cars};downloadBlob(new Blob([JSON.stringify(payload)],{type:'application/json'}),'masar-cars-backup-'+new Date().toISOString().slice(0,10)+'.json');toast('تم تجهيز النسخة الاحتياطية')}
+async function importBackup(){const f=$('backupFile').files[0];if(!f){toast('اختر ملف النسخة الاحتياطية');return}if(!confirm('سيتم استبدال البيانات الحالية. هل صدّرت نسخة من بياناتك الحالية؟'))return;try{const payload=JSON.parse(await f.text());if(!Array.isArray(payload.vehicles))throw Error('invalid');const tx=db.transaction(STORE,'readwrite'),s=tx.objectStore(STORE);s.clear();for(const v of payload.vehicles){delete v.id;s.add(v)}tx.oncomplete=()=>{toast('تمت استعادة النسخة الاحتياطية');showScreen('home')};tx.onerror=()=>toast('تعذرت الاستعادة')}catch(e){toast('الملف غير صالح أو ليس نسخة احتياطية من مسار السيارات')}}
+function csvEscape(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+async function exportCSV(){const cars=await allVehicles();const rows=[['رقم اللوحة','رقم الهيكل','الجهة المالكة','الموقع الحالي','حالة السيارة','عدد الحركات','الملاحظات'],...cars.map(c=>[c.plate,c.vin,c.company,c.location,c.condition,(c.history||[]).length,c.notes])];const csv='\ufeff'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n');downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'masar-cars-report.csv')}
+async function exportOneCSV(id){const c=(await allVehicles()).find(v=>v.id===id);if(!c)return;const rows=[['رقم اللوحة','رقم الهيكل','الجهة المالكة','الموقع الحالي','التاريخ','نوع الحركة','من','إلى','طريقة النقل','الناقل','رقم النقل','الملاحظات'],...[...(c.history||[])].map(h=>[c.plate,c.vin,c.company,c.location,h.date,h.type,h.from,h.to,h.transport,h.carrier,h.truck,h.notes])];downloadBlob(new Blob(['\ufeff'+rows.map(r=>r.map(csvEscape).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'masar-'+c.plate.replace(/\s/g,'-')+'.csv')}
+async function refreshStorage(){try{const cars=await allVehicles();let photos=0;cars.forEach(c=>{photos+=(c.photos||[]).length;(c.history||[]).forEach(h=>photos+=(h.photos||[]).length)});let usage='';if(navigator.storage?.estimate){const e=await navigator.storage.estimate();usage=` المساحة المقدرة المستخدمة: ${((e.usage||0)/1048576).toFixed(1)} MB من حد تقريبي يختلف حسب الجهاز والمتصفح.`} $('storageInfo').textContent=`عدد السيارات المحفوظة على هذا الجهاز: ${cars.length}. عدد الصور في السجلات: ${photos}.${usage} التصدير الاحتياطي ضروري؛ لا تعتمد على التخزين المحلي وحده.`}catch(e){$('storageInfo').textContent='تعذر فحص المساحة.'}}
+async function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null}else{toast('للتثبيت: افتح التطبيق من Chrome بعد نشره على HTTPS، ثم قائمة ⋮ واختر «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق».')}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e});
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+(async()=>{try{await openDB();await renderCars();await refreshStorage()}catch(e){alert('تعذر فتح التخزين المحلي في هذا المتصفح. افتح التطبيق من رابط HTTPS حديث.')}})();
+</script>
+</body></html>
