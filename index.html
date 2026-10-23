@@ -3,180 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مسار السيارات - إدارة الساحة والعمليات</title>
+    <title>مسار السيارات</title>
     <link rel="stylesheet" href="https://cloudflare.com">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        :root { --primary: #1a365d; --secondary: #2b6cb0; --success: #2f855a; --danger: #c53030; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #f7fafc; padding-bottom: 80px; color: #2d3748; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 15px; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-top: 4px solid var(--secondary); }
+        .card.out { border-top-color: var(--danger); } .card.total { border-top-color: var(--primary); }
+        .box { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .flex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn { background: var(--secondary); color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .btn-s { background: var(--success); } .btn-d { background: var(--danger); }
+        .search-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 15px; background: #edf2f7; padding: 10px; border-radius: 6px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 14px; }
+        .table-w { overflow-x: auto; } table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+        th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+        th { background: #edf2f7; color: var(--primary); }
+        .badge { padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge-in { background: #c6f6d5; color: #22543d; } .badge-out { background: #fed7d7; color: #742a2a; }
+        .sec { display: none; } .sec.active { display: block; }
+        .nav-b { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; padding: 8px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-i { display: flex; flex-direction: column; align-items: center; color: #718096; background: none; border: none; cursor: pointer; width: 33%; font-size: 12px; }
+        .nav-i.active { color: var(--secondary); font-weight: bold; }
+    </style>
 </head>
 <body>
-
     <header>
-        <h1><i class="fas fa-car-side"></i> مسار السيارات</h1>
-        <p>نظام إدارة حركة المركبات، الاستلام والتسليم، والعمليات اللوجستية</p>
+        <h2><i class="fas fa-car-side"></i> مسار السيارات</h2>
+        <p>إدارة حركة المركبات والعمليات اللوجستية (بدون إنترنت)</p>
     </header>
-
     <div class="container">
-        <!-- عدادات حصر وحساب السيارات الفوري -->
-        <div class="dashboard-stats">
-            <div class="stat-card total">
-                <h3>إجمالي السيارات المسجلة</h3>
-                <div class="value" id="stat-total">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>في الساحة حالياً (موجودة)</h3>
-                <div class="value" id="stat-yard">0</div>
-            </div>
-            <div class="stat-card">
-                <h3>في الصيانة</h3>
-                <div class="value" id="stat-maintenance">0</div>
-            </div>
-            <div class="stat-card out">
-                <h3>في الطريق (خارجة)</h3>
-                <div class="value" id="stat-road">0</div>
-            </div>
+        <div class="stats">
+            <div class="card total"><h3>إجمالي المسجل</h3><div class="value" id="s-total">0</div></div>
+            <div class="card"><h3>في الساحة (موجودة)</h3><div class="value" id="s-yard">0</div></div>
+            <div class="card"><h3>في الصيانة</h3><div class="value" id="s-main">0</div></div>
+            <div class="card out"><h3>في الطريق (خارجة)</h3><div class="value" id="s-road">0</div></div>
         </div>
-
-        <!-- قسم الرئيسية: الجدول والبحث المتقدم -->
-        <div id="section-home" class="page-section active">
-            <div class="main-card">
-                <div class="card-header">
-                    <h2>قائمة السيارات والعمليات الحالية</h2>
-                    <button class="btn" onclick="switchTab('add')"><i class="fas fa-plus"></i> حركة جديدة</button>
+        <div id="sec-home" class="sec active">
+            <div class="box">
+                <div class="flex-header">
+                    <h3>قائمة حركات السيارات</h3>
+                    <button class="btn" onclick="goTab('add')"><i class="fas fa-plus"></i> حركة جديدة</button>
                 </div>
-
-                <!-- أدوات الفلترة والبحث المتقدم والوجهات -->
-                <div class="search-box">
-                    <input type="text" id="search-general" class="form-control" placeholder="البحث برقم اللوحة، الهيكل، أو المالك..." oninput="filterCars()">
-                    <input type="text" id="search-carrier" class="form-control" placeholder="اسم الناقل..." oninput="filterCars()">
-                    <input type="text" id="search-driver" class="form-control" placeholder="اسم السائق..." oninput="filterCars()">
-                    <input type="text" id="search-destination" class="form-control" placeholder="الوجهة المحددة..." oninput="filterCars()">
-                    <select id="filter-location" class="form-control" onchange="filterCars()">
+                <div class="search-grid">
+                    <input type="text" id="q-gen" class="form-control" placeholder="رقم اللوحة أو المالك..." oninput="runFilter()">
+                    <input type="text" id="q-car" class="form-control" placeholder="اسم الناقل..." oninput="runFilter()">
+                    <input type="text" id="q-drv" class="form-control" placeholder="اسم السائق..." oninput="runFilter()">
+                    <input type="text" id="q-dst" class="form-control" placeholder="الوجهة..." oninput="runFilter()">
+                    <select id="q-loc" class="form-control" onchange="runFilter()">
                         <option value="">كل المواقع</option>
                         <option value="الساحة">الساحة</option>
                         <option value="الصيانة">الصيانة</option>
                         <option value="في الطريق">في الطريق</option>
                     </select>
                 </div>
-
-                <div class="table-responsive">
+                <div class="table-w">
                     <table>
                         <thead>
                             <tr>
-                                <th>نوع العملية</th>
-                                <th>رقم اللوحة</th>
-                                <th>الجهة المالكة</th>
-                                <th>الموقع الحالي</th>
-                                <th>اسم الناقل</th>
-                                <th>لوحة مركبة النقل</th>
-                                <th>اسم السائق</th>
-                                <th>الوجهة</th>
-                                <th>الحالة الفنية</th>
+                                <th>العملية</th><th>رقم اللوحة</th><th>الشركة المالكة</th><th>الموقع</th>
+                                <th>الناقل</th><th>لوحة النقل</th><th>السائق</th><th>الوجهة</th><th>الحالة</th>
                             </tr>
                         </thead>
-                        <tbody id="cars-table-body"></tbody>
+                        <tbody id="table-body"></tbody>
                     </table>
-                    <div id="no-data-msg" class="no-data">لا توجد سجلات مطابقة للبحث حالياً.</div>
                 </div>
             </div>
         </div>
-
-        <!-- قسم إضافة حركة جديدة: استلام أو تسليم -->
-        <div id="section-add" class="page-section">
-            <div class="main-card">
-                <h2><i class="fas fa-exchange-alt"></i> تسجيل حركة مركبة (استلام / تسليم)</h2>
-                <br>
-                <form id="car-form" onsubmit="saveCar(event)">
-                    <div class="car-form-grid">
-                        <div class="form-group">
-                            <label>نوع العملية *</label>
-                            <select id="car-type" class="form-control" required>
-                                <option value="استلام">استلام مركبة (واردة)</option>
-                                <option value="تسليم">تسليم مركبة (خارجة)</option>
+        <div id="sec-add" class="sec">
+            <div class="box">
+                <h3>تسجيل حركة جديدة</h3><br>
+                <form id="f-car" onsubmit="doSave(event)">
+                    <div class="form-grid">
+                        <div class="form-group"><label>نوع العملية *</label>
+                            <select id="i-type" class="form-control" required>
+                                <option value="استلام">استلام مركبة</option>
+                                <option value="تسليم">تسليم مركبة</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>رقم اللوحة *</label>
-                            <input type="text" id="car-plate" class="form-control" required placeholder="مثال: أ ب ج 1234">
-                        </div>
-                        <div class="form-group">
-                            <label>رقم الهيكل (VIN)</label>
-                            <input type="text" id="car-vin" class="form-control" placeholder="أدخل رقم الهيكل">
-                        </div>
-                        <div class="form-group">
-                            <label>الشركة المالكة / مكتب التأجير *</label>
-                            <input type="text" id="car-owner" class="form-control" required placeholder="اسم الجهة المالكة">
-                        </div>
-                        <div class="form-group">
-                            <label>الموقع الحالي للمركبة</label>
-                            <select id="car-location" class="form-control">
+                        <div class="form-group"><label>رقم اللوحة *</label><input type="text" id="i-plate" class="form-control" required></div>
+                        <div class="form-group"><label>رقم الهيكل</label><input type="text" id="i-vin" class="form-control"></div>
+                        <div class="form-group"><label>الشركة المالكة *</label><input type="text" id="i-owner" class="form-control" required></div>
+                        <div class="form-group"><label>الموقع الحالي</label>
+                            <select id="i-loc" class="form-control">
                                 <option value="الساحة">الساحة</option>
                                 <option value="الصيانة">الصيانة</option>
                                 <option value="في الطريق">في الطريق</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>حالة المركبة الفنية</label>
-                            <select id="car-status" class="form-control">
-                                <option value="سليمة حسب المعاينة">سليمة حسب المعاينة</option>
+                        <div class="form-group"><label>الحالة الفنية</label>
+                            <select id="i-status" class="form-control">
+                                <option value="سليمة">سليمة حسب المعاينة</option>
                                 <option value="تحتاج صيانة">تحتاج صيانة</option>
-                                <option value="أضرار موجودة">أضرار موجودة</option>
-                                <option value="غير مفحوصة">غير مفحوصة</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>اسم الناقل (شركة النقل)</label>
-                            <input type="text" id="car-carrier" class="form-control" placeholder="مثال: البسامي...">
-                        </div>
-                        <div class="form-group">
-                            <label>رقم لوحة مركبة النقل</label>
-                            <input type="text" id="car-carrier-plate" class="form-control" placeholder="لوحة الشاحنة/السطحة">
-                        </div>
-                        <div class="form-group">
-                            <label>اسم السائق</label>
-                            <input type="text" id="car-driver" class="form-control" placeholder="اسم سائق مركبة النقل">
-                        </div>
-                        <div class="form-group">
-                            <label>الوجهة المقصودة / خط السير</label>
-                            <input type="text" id="car-destination" class="form-control" placeholder="المدينة أو المستودع النهائي">
-                        </div>
-                        <div class="form-group full-width">
-                            <label>ملاحظات إضافية وأضرار مرصودة</label>
-                            <textarea id="car-notes" class="form-control" rows="3" placeholder="أدخل أي تفاصيل إضافية..."></textarea>
-                        </div>
-                    </div>
-                    <br>
+                        <div class="form-group"><label>اسم الناقل</label><input type="text" id="i-carrier" class="form-control"></div>
+                        <div class="form-group"><label>لوحة النقل</label><input type="text" id="i-cplate" class="form-control"></div>
+                        <div class="form-group"><label>اسم السائق</label><input type="text" id="i-driver" class="form-control"></div>
+                        <div class="form-group"><label>الوجهة</label><input type="text" id="i-dest" class="form-control"></div>
+                    </div><br>
                     <div style="display:flex; gap:10px; justify-content:flex-end;">
-                        <button type="button" class="btn btn-danger" onclick="switchTab('home')">إلغاء</button>
-                        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> حفظ الحركة</button>
+                        <button type="button" class="btn btn-d" onclick="goTab('home')">إلغاء</button>
+                        <button type="submit" class="btn btn-s">حفظ الحركة</button>
                     </div>
                 </form>
             </div>
         </div>
-
-        <!-- قسم التقارير وقاعدة البيانات -->
-        <div id="section-reports" class="page-section">
-            <div class="main-card">
-                <h2><i class="fas fa-file-excel"></i> التقارير وتصدير البيانات</h2>
-                <p style="margin: 10px 0; color:#718096;">تصدير قائمة الحركات الحالية والسيارات المحصورة في ملف Excel.</p>
-                <button class="btn btn-success" onclick="exportToCSV()"><i class="fas fa-download"></i> تصدير تقرير السيارات الشامل لـ Excel (CSV)</button>
-            </div>
-
-            <div class="main-card">
-                <h2><i class="fas fa-database"></i> قاعدة البيانات والنسخ الاحتياطي</h2>
-                <p style="margin: 10px 0; color:#718096;">البيانات تخزن محلياً على جهازك وتعمل وتخزن بدون إنترنت.</p>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-                    <button class="btn" onclick="backupData()"><i class="fas fa-copy"></i> إنشاء نسخة احتياطية (JSON)</button>
-                    <input type="file" id="import-file" style="display: none;" onchange="restoreData(event)">
-                    <button class="btn" onclick="document.getElementById('import-file').click()"><i class="fas fa-upload"></i> استعادة نسخة سابقة</button>
-                </div>
+        <div id="sec-rep" class="sec">
+            <div class="box">
+                <h3>تصدير البيانات لـ Excel</h3><br>
+                <button class="btn btn-s" onclick="toCSV()">تصدير تقرير CSV</button>
             </div>
         </div>
     </div>
+    <nav class="nav-b">
+        <button class="nav-i active" id="t-home" onclick="goTab('home')"><i class="fas fa-home"></i> الرئيسية</button>
+        <button class="nav-i" id="t-add" onclick="goTab('add')"><i class="fas fa-plus-circle"></i> حركة جديدة</button>
+        <button class="nav-i" id="t-rep" onclick="goTab('rep')"><i class="fas fa-file-invoice"></i> تقارير</button>
+    </nav>
+    <script src="script.js"></script>
+</body>
+</html>
+// مصفوفة تخزين العمليات محلياً في المتصفح
+let db = JSON.parse(localStorage.getItem('masar_db')) || [];
 
-    <!-- شريط التنقل السفلي السريع المصلح -->
-    <nav class="nav-bottom">
-        <button class="nav-item active" id="btn-tab-home" onclick="switchTab('home')">
-            <i class="fas fa-home"></i> الرئيسية
-        </button>
-        <button class="nav-item" id="btn-tab-add" onclick="switchTab('add')">
-            <i class="fas fa-plus-circle"></i> حركة جديدة
-        </button>
+// تشغيل العدادات والجدول فور تحميل الصفحة
+document.addEventListener("DOMContentLoaded", () => {
+    doRender();
+    doCount();
+});
+
+// التبديل السريع بين تبويبات التطبيق
+function goTab(t) {
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-i').forEach(b => b.classList.remove('active'));
+    document.getElementById(`sec-${t}`).classList.add('active');
+    document.getElementById(`t-${t}`).classList.add('active');
+}
+
+// حفظ حركة استلام أو تسليم جديدة
+function doSave(e) {
+    e.preventDefault();
+    db.unshift({
+        type: document.getElementById('i-type').value,
+        plate: document.getElementById('i-plate').value,
+        vin: document.getElementById('i-vin').value || '-',
+        owner: document.getElementById('i-owner').value,
+        location: document.getElementById('i-loc').value,
+        status: document.getElementById('i-status').value,
+        carrier: document.getElementById('i-carrier').value || '-',
+        cplate: document.getElementById('i-cplate').value || '-',
+        driver: document.getElementById('i-driver').value || '-',
+        dest: document.getElementById('i-dest').value || '-'
+    });
+    localStorage.setItem('masar_db', JSON.stringify(db));
+    document.getElementById('f-car').reset();
+    doRender(); 
+    doCount(); 
+    goTab('home');
+}
+
+// تحديث لوحة عدادات حصر السيارات الفورية
+function doCount() {
+    document.getElementById('s-total').innerText = db.length;
+    document.getElementById('s-yard').innerText = db.filter(c => c.location === 'الساحة').length;
+    document.getElementById('s-main').innerText = db.filter(c => c.location === 'الصيانة').length;
+    document.getElementById('s-road').innerText = db.filter(c => c.location === 'في الطريق').length;
+}
+
+// بناء وعرض جدول حركات السيارات
+function doRender(items = db) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    items.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="badge ${c.type==='استلام'?'badge-in':'badge-out'}">${c.type}</span></td>
+            <td style="font-weight:bold;color:var(--primary);">${c.plate}</td>
+            <td>${c.owner}</td>
+            <td>${c.location}</td>
+            <td>${c.carrier}</td>
+            <td>${c.cplate}</td>
+            <td>${c.driver}</td>
+            <td>${c.dest}</td>
+            <td>${c.status}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// محرك البحث والفلترة المتقدمة متعدد الخيارات (الوجهة، الناقل، السائق، اللوحة)
+function runFilter() {
+    const g = document.getElementById('q-gen').value.toLowerCase();
+    const c = document.getElementById('q-car').value.toLowerCase();
+    const d = document.getElementById('q-drv').value.toLowerCase();
+    const s = document.getElementById('q-dst').value.toLowerCase();
+    const l = document.getElementById('q-loc').value;
+
+    const res = db.filter(i => {
+        return (i.plate.toLowerCase().includes(g) || i.owner.toLowerCase().includes(g)) &&
+               (i.carrier.toLowerCase().includes(c) || i.cplate.toLowerCase().includes(c)) &&
+               i.driver.toLowerCase().includes(d) && 
+               i.dest.toLowerCase().includes(s) &&
+               (l === "" || i.location === l);
+    });
+    doRender(res);
+}
+
+// تصدير كشوفات حركة المركبات إلى Excel (CSV)
+function toCSV() {
+    if(!db.length) return alert('لا توجد بيانات لتصديرها حالياً!');
+    let csv = "\ufeffنوع العملية,رقم اللوحة,الهيكل,المالك,الموقع,الحالة,الناقل,لوحة النقل,السائق,الوجهة\n";
+    db.forEach(c => { 
+        csv += `"${c.type}","${c.plate}","${c.vin}","${c.owner}","${c.location}","${c.status}","${c.carrier}","${c.cplate}","${c.driver}","${c.dest}"\n`; 
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement("a"); 
+    a.href = URL.createObjectURL(blob); 
+    a.download = `تقرير_مسار_السيارات.csv`; 
+    a.click();
+}
+
+// إنشاء نسخة احتياطية لقاعدة البيانات المحلية
+function toBackup() {
+    const a = document.createElement('a');
+    a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+    a.download = `نسخة_مسار.json`; 
+    a.click();
+}
